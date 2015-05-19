@@ -1,0 +1,86 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>Currency convert</title>
+		<script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+		<script src="./lib/js/CurrencyConvert.min.js"></script>
+	</head>
+	<body>
+		<label>
+			Select your currency:&nbsp;
+			<select>
+				<option value="AUD">AUD</option>
+				<option value="CAD">CAD</option>
+				<option value="EUR">EUR</option>
+				<option value="GBP" selected>GBP</option>
+				<option value="USD">USD</option>
+			</select>
+		</label>
+		<div>
+			<h1 id="t1">Tier 1: <span>£</span><span>19,195</span></h1>
+			<h1 id="t2">Tier 2: <span>£</span><span>2,999</span></h1>
+			<h1 id="t3">Tier 3: <span>£</span><span>969</span></h1>
+			<h1 id="t4">Tier 4: <span>£</span><span>1,099</span></h1>
+		</div>
+		<div>
+			(currency conversions accurate within half an hour of first calculation)
+		</div>
+		<script>
+			// Get rates now so we don't have to make
+			// any HTTP requests later, nice user flow.
+			CurrencyConvert.getRates([['GBP', 'USD'], ['GBP', 'AUD'], ['GBP', 'EUR'], ['GBP', 'CAD']]);
+
+			function loading(symb) {
+				var symbols = ['€', '£', '$'];
+				jQuery('#t1 > span:first-child, #t2 > span:first-child, #t3 > span:first-child, #t4 > span:first-child').html(symbols[symb]);
+				jQuery('#t1 > span:last-child, #t2 > span:last-child, #t3 > span:last-child, #t4 > span:last-child').html('Loading');
+			}
+
+			function update(c) {
+				jQuery('#t1 > span:last-child').html(formatNumber(Math.round(19195 * c)));
+				jQuery('#t2 > span:last-child').html(formatNumber(Math.round(2999 * c)));
+				jQuery('#t3 > span:last-child').html(formatNumber(Math.round(969 * c)));
+				jQuery('#t4 > span:last-child').html(formatNumber(Math.round(1099 * c)));
+			}
+
+			function formatNumber(num) {
+				return num.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
+			}
+
+			jQuery('select').on('change', function() {
+
+				switch(jQuery(this).val()) {
+
+					case 'AUD':
+						loading(2);
+						CurrencyConvert.getRate('GBP', 'AUD', update);
+						break;
+
+					case 'CAD':
+						loading(2);
+						CurrencyConvert.getRate('GBP', 'CAD', update);
+						break;
+
+					case 'EUR':
+						loading(0);
+						CurrencyConvert.getRate('GBP', 'EUR', update);
+						break;
+
+					case 'GBP':
+						loading(1);
+						jQuery('#t1 > span:last-child').html(formatNumber(Math.round(19195)));
+						jQuery('#t2 > span:last-child').html(formatNumber(Math.round(2999)));
+						jQuery('#t3 > span:last-child').html(formatNumber(Math.round(969)));
+						jQuery('#t4 > span:last-child').html(formatNumber(Math.round(1099)));
+						break;
+
+					case 'USD':
+						loading(2);
+						CurrencyConvert.getRate('GBP', 'USD', update);
+						break;
+				}
+			});
+		</script>
+	</body>
+</html>
